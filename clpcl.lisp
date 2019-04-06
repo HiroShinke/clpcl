@@ -97,22 +97,5 @@
       (lambda ,vs ,@body))
     ))
 
-(let ((a (clpcl-regexp "(a)*b")))
-  (clpcl-parse a "aaabd"))
 
-(let* ((a (clpcl-regexp "a"))
-       (b (clpcl-regexp "b"))
-       (c (clpcl-regexp "c"))
-       (p (clpcl-seq a b c)))
-  (clpcl-parse p "abc"))
-
-(let* ((a (clpcl-regexp "a"))
-       (b (clpcl-regexp "b"))
-       (c (clpcl-regexp "c"))
-       (p (clpcl-let ((x a)
-		      (y b)
-		      (z c))
-		     (list x y z))))
-  (clpcl-parse p "abc")
-  )
 
