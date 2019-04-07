@@ -1,8 +1,14 @@
 
-(ql:quickload :fiveam)
-(ql:quickload :clpcl)
+(in-package :cl-user)
+(defpackage clpcl-test
+  (:use :cl :fiveam :clpcl))
+(in-package :clpcl-test)
 
-(use-package :fiveam)
+(def-suite :clpcl)
+(in-suite :clpcl)
+
+(ql:quickload :clpcl)
+(use-package :clpcl)
 
 (test simple-regexp
   "test for pprp based Regexp parser"
@@ -33,6 +39,4 @@
      (success 3 '("a" "b" "c")))
     )
   )
-
-(run!)
 

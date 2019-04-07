@@ -1,14 +1,17 @@
 
-;;(ql:quickload :cl-ppcre :silent t)
-;;(ql:quickload :optima :silent t)
 
-;;(shadowing-import :scan :cl-ppcre)
-;;(import ppcre:scan)
-;;(import ppcre:create-scanner)
-(use-package :ppcre)
-;;(use-package :optima)
-;;(shadowing-import 'optima:match)
-;;(use-package :optima)
+(in-package :cl-user)
+(defpackage :clpcl
+  (:use :cl :ppcre :optima)
+  (:export :success
+	   :faiulure
+	   :clpcl-let
+	   :clpcl-regexp
+	   :clpcl-seq
+	   :clpcl-parse
+	   :clpcl-*)
+  )
+(in-package :clpcl)
 
 (defstruct (success (:constructor success(pos value)))
   pos
@@ -45,7 +48,7 @@
 	  (failed nil))
       (loop for p in ps
 	 do
-	   (optima:match (funcall p text pos0)
+	   (match (funcall p text pos0)
 	     ((success :pos pos1 :value v)
 	      (setq pos0 pos1)
 	      (setq ret (cons v ret)))
@@ -63,7 +66,7 @@
 (defun clpcl-bind (p action)
   (lambda (text pos)
     (let ((r (funcall p text pos)))
-      (optima:match r
+      (match r
 	((success :pos pos :value v)
 	 (success
 	  pos
