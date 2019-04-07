@@ -9,6 +9,8 @@
 	   :clpcl-regexp
 	   :clpcl-seq
 	   :clpcl-parse
+	   :clpcl-let*
+	   :clpcl-return
 	   :clpcl-*)
   )
 (in-package :clpcl)
@@ -104,5 +106,46 @@
       (lambda ,vs ,@body))
     ))
 
+(defun clpcl-m-bind (p func)
+  (lambda (text pos)
+    (let ((r (funcall p text pos)))
+      (match r
+	((success :pos pos :value v)
+	 (funcall (funcall func v) text pos))
+	(otherwise
+	 r)))))
+
+(defmacro clpcl-let* (args &rest body)
+  (clpcl-let*-helper args body)
+  )
+
+(defun clpcl-let*-helper (args body)  
+  (match args
+    ((cons (list s p) rest)
+     (clpcl--bind-template p (if s s (intern "s")) rest body))
+    ((cons p rest)
+     (clpcl--bind-template p (intern "s") rest body))     
+    (nil
+     `(clpcl-return (progn ,@body))
+     )
+    )
+  )
+
+(defun clpcl--bind-template (p s as body)
+  `(clpcl-m-bind
+    ,p
+    (lambda (,s)
+      ,(clpcl-let*-helper as body)
+      )
+    )
+  )
+
+(defun clpcl-return (v)
+  (lambda (text pos)
+    (success pos v)))
 
 
+
+    
+
+  

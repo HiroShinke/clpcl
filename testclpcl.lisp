@@ -49,3 +49,21 @@
     )
   )
 
+(test clpcl-let*
+  "test for clpcl-let*"
+  (let* ((a (clpcl-regexp "a"))
+	 (b (clpcl-regexp "b"))
+	 (c (clpcl-regexp "c"))
+	 (p (clpcl-let* ((x a)
+			(y b)
+			(z c))
+		       (list x y z))))
+    (is
+     (equalp
+      (success 3 '("a" "b" "c"))
+      (clpcl-parse p "abc"))
+     )
+    )
+  )
+
+
