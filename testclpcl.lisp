@@ -17,6 +17,20 @@
        (clpcl-parse (clpcl-regexp "a") "a")
        )))
 
+(test token-parser
+  "test for pprp based Regexp parser"
+  (is (equalp
+       (success 4 "a")
+       (let* ((a (clpcl-regexp "a"))
+	      (p (clpcl-token a)))
+	 (clpcl-parse p "   a"))))
+  (is (equalp
+       (failure 0)
+       (let* ((a (clpcl-regexp "a"))
+  	      (p (clpcl-token a)))
+  	 (clpcl-parse p "   b"))))
+  )
+
 (test seq-parser
   "test for parser seq"
   (let* ((a (clpcl-regexp "a"))

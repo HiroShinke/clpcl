@@ -4,10 +4,12 @@
 (defpackage :clpcl
   (:use :cl :ppcre :optima)
   (:export :success
-	   :faiulure
+	   :failure
 	   :clpcl-let
 	   :clpcl-regexp
 	   :clpcl-seq
+	   :clpcl-token
+	   :clpcl-try
 	   :clpcl-parse
 	   :clpcl-let*
 	   :clpcl-return
@@ -32,6 +34,25 @@
 
 (defun clpcl-parse (parser text)
   (funcall parser text 0))
+
+(defun clpcl-token (p)
+  (clpcl-try
+   (clpcl-let
+    ((nil (clpcl-regexp "\\s+"))
+     (v p))
+    v)
+   )
+  )
+
+(defun clpcl-try (p)
+  (lambda (text pos)
+    (let ((r (funcall p text pos)))
+      (match r
+	((failure :pos pos0)
+	 (declare (ignore pos0))
+	 (failure pos))
+	(otherwise
+	 r)))))
 
 (defun clpcl-regexp (regexp)
   (let ((scanner (create-scanner regexp)))
