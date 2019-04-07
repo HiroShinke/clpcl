@@ -37,6 +37,7 @@
       (multiple-value-bind
 	    (s e rs re)
 	  (scan scanner text :start pos)
+	(declare (ignore rs re))
 	(if s
 	    (success e (subseq text s e))
 	    (failure pos))))))
@@ -47,17 +48,20 @@
 	  (ret  nil)
 	  (failed nil))
       (loop for p in ps
-	 do
+	 if
 	   (match (funcall p text pos0)
 	     ((success :pos pos1 :value v)
 	      (setq pos0 pos1)
-	      (setq ret (cons v ret)))
+	      (setq ret (cons v ret))
+	      nil)
 	     ((failure :pos pos1)
 	      (setq pos0 pos1)
-	      (setq failed t))
+	      (setq failed t)
+	      t)
 	     (otherwise
 	      (error "xxxxxxx"))
 	     )
+	   return nil
 	   )
       (if failed
 	  (failure pos0)
