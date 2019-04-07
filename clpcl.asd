@@ -4,7 +4,8 @@
   :depends-on (:cl-ppcre
   	       :optima
 	       )
-  :components ((:file "clpcl")))
+  :components ((:file "clpcl"))
+  :in-order-to ((test-op (test-op testclpcl))))
 
 	
 	       
