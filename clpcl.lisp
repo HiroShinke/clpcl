@@ -142,6 +142,7 @@
 
 (defun clpcl-return (v)
   (lambda (text pos)
+    (declare (ignore text))
     (success pos v)))
 
 
