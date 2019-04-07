@@ -7,13 +7,15 @@
 (def-suite :clpcl)
 (in-suite :clpcl)
 
-(ql:quickload :clpcl)
+;;(ql:quickload :clpcl)
 (use-package :clpcl)
 
 (test simple-regexp
   "test for pprp based Regexp parser"
-  (is (clpcl-parse (clpcl-regexp "a") "a")
-      (success 1 "a")))
+  (is (equalp
+       (success 1 "a")
+       (clpcl-parse (clpcl-regexp "a") "a")
+       )))
 
 (test seq-parser
   "test for parser seq"
@@ -21,9 +23,14 @@
 	 (b (clpcl-regexp "b"))
 	 (c (clpcl-regexp "c"))
 	 (p (clpcl-seq a b c)))
-    (is 
-     (clpcl-parse p "abc")
-     (success 3 '("a" "b" "c")))))
+    (is
+     (equalp
+      (success 3 '("a" "b" "c"))
+      (clpcl-parse p "abc")
+      )
+     )
+    )
+  )
 
 (test clpcl-let
   "test for clpcl-let"
@@ -34,9 +41,11 @@
 			(y b)
 			(z c))
 		       (list x y z))))
-    (is 
-     (clpcl-parse p "abc")
-     (success 3 '("a" "b" "c")))
+    (is
+     (equalp
+      (success 3 '("a" "b" "c"))
+      (clpcl-parse p "abc"))
+     )
     )
   )
 
