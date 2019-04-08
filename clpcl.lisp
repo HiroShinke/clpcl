@@ -8,6 +8,7 @@
 	   :clpcl-let
 	   :clpcl-regexp
 	   :clpcl-seq
+	   :clpcl-or
 	   :clpcl-token
 	   :clpcl-try
 	   :clpcl-parse
@@ -90,6 +91,51 @@
 	  (failure pos0)
 	  (success pos0 (reverse ret))))))
 
+(defun clpcl-or (&rest ps)
+
+  (lambda (text pos)
+
+    (let ((ret nil))
+
+      (loop for p in ps
+	 if
+	   (let ((r (funcall p text pos)))
+	     (match r
+	       ((success)
+		(setq ret r)
+		t)
+	       ((failure :pos pos1)
+		(if (/= pos pos1)
+		    (progn
+		      (setq ret r)
+		      t)
+		    )
+		)
+	       (otherwise
+		(error "clpcl-or : error")
+		)
+	       )
+	     )
+	 return nil
+	 )
+	      
+      (if ret
+	  ret
+	  (failure pos))
+      )
+    )
+  )
+
+(defmacro clpcl-lazy (p0)
+  `(clpcl--lazy-helper (lambda () ,p0)))
+  
+(defun clpcl--lazy-helper (p0)
+  (let ((p nil))
+    (lambda (point)      
+      (if (not p) (setq p (funcall p0)))
+      (funcall p point))))
+
+
 (defun clpcl-bind (p action)
   (lambda (text pos)
     (let ((r (funcall p text pos)))
@@ -113,7 +159,7 @@
 	       (if (and (listp e)
 			(car e))
 		   (car e)
-		 (intern "epcl-let")))
+		 (intern "clpcl-let")))
 	     arglist))
 	(ps (mapcar
 	     (lambda (e)
@@ -126,6 +172,7 @@
       (clpcl-seq ,@ps)
       (lambda ,vs ,@body))
     ))
+
 
 (defun clpcl-m-bind (p func)
   (lambda (text pos)

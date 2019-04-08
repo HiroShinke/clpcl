@@ -46,6 +46,34 @@
     )
   )
 
+(test or-parser
+  "test for parser or"
+  (let* ((a (clpcl-regexp "a"))
+	 (b (clpcl-regexp "b"))
+	 (c (clpcl-regexp "c"))
+	 (p (clpcl-or a b c)))
+    (is
+     (equalp
+      (success 1 "a")
+      (clpcl-parse p "ax")
+      )
+     )
+    (is
+     (equalp
+      (success 1 "b")
+      (clpcl-parse p "bx")
+      )
+     )
+    (is
+     (equalp
+      (success 1 "c")
+      (clpcl-parse p "cx")
+      )
+     )
+    )
+  )
+
+
 (test clpcl-let
   "test for clpcl-let"
   (let* ((a (clpcl-regexp "a"))
