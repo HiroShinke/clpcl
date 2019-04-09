@@ -7,6 +7,7 @@
 	   :failure
 	   :clpcl-let
 	   :clpcl-regexp
+	   :clpcl-many
 	   :clpcl-seq
 	   :clpcl-or
 	   :clpcl-token
@@ -65,6 +66,54 @@
 	(if s
 	    (success e (subseq text s e))
 	    (failure pos))))))
+
+(defun clpcl-debug (label p)
+  (lambda (text pos)
+    (let ((r (funcall p text pos)))
+      (format t "label=~S,ret=~S" label r)
+      r)))
+
+(defun clpcl-many (p)
+
+  (lambda (text pos)
+
+    (let ((success t)
+	  (ret nil))
+
+      (loop
+	 if
+	   (let ((r (funcall p text pos)))
+	     (match r
+	       ((success :pos pos1 :value v)
+		(setq pos pos1)
+		(setq ret (cons v ret))
+		nil
+		)
+	       ((failure :pos pos1)
+		(if (/= pos pos1)
+		    (setq success nil)
+		    (setq success t))
+		t)
+	       )
+	     )
+	   
+	 return nil
+	   )
+	   
+      (if success
+	  (success pos (reverse ret))
+	  (failure pos)
+	  )
+      )
+    )
+  )
+
+(defun clpcl-many-1 (p)
+  (clpcl-let
+   ((v p)
+    (vs (clpcl-many p)))
+   (cons v vs)))
+
 
 (defun clpcl-seq (&rest ps)
   (lambda (text pos)
@@ -131,9 +180,9 @@
   
 (defun clpcl--lazy-helper (p0)
   (let ((p nil))
-    (lambda (point)      
+    (lambda (text pos)      
       (if (not p) (setq p (funcall p0)))
-      (funcall p point))))
+      (funcall p text pos))))
 
 
 (defun clpcl-bind (p action)
@@ -159,7 +208,7 @@
 	       (if (and (listp e)
 			(car e))
 		   (car e)
-		 (intern "clpcl-let")))
+		   (intern "clpcl-let")))
 	     arglist))
 	(ps (mapcar
 	     (lambda (e)

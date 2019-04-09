@@ -46,6 +46,20 @@
     )
   )
 
+(test many-parser
+  "test for parser seq"
+  (let* ((a (clpcl-regexp "a"))
+	 (p (clpcl-many a)))
+    (is
+     (equalp
+      (success 3 '("a" "a" "a"))
+      (clpcl-parse p "aaa")
+      )
+     )
+    )
+  )
+
+
 (test or-parser
   "test for parser or"
   (let* ((a (clpcl-regexp "a"))
@@ -68,6 +82,12 @@
      (equalp
       (success 1 "c")
       (clpcl-parse p "cx")
+      )
+     )
+    (is
+     (equalp
+      (failure 0)
+      (clpcl-parse p "xx")
       )
      )
     )
