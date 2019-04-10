@@ -6,6 +6,7 @@
   (:export :success
 	   :failure
 	   :clpcl-let
+	   :clpcl-debug
 	   :clpcl-regexp
 	   :clpcl-many
 	   :clpcl-seq

@@ -59,6 +59,18 @@
     )
   )
 
+(test debug-parser
+  "test for parser seq"
+  (let* ((a (clpcl-regexp "a"))
+	 (p (clpcl-debug "debug" a)))
+    (is
+     (equalp
+      (success 1 "a")
+      (clpcl-parse p "aaa")
+      )
+     )
+    )
+  )
 
 (test or-parser
   "test for parser or"
