@@ -96,7 +96,6 @@
 		(if (/= pos pos1)
 		    (setq success nil)
 		    (setq success t))
-		t
 		nil)
 	       )
 	     )
