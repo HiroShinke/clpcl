@@ -265,24 +265,33 @@
      (apply action x))))
 
 (defmacro clpcl-let (arglist &rest body)
-  (let ((vs (mapcar
-	     (lambda (e)
-	       (if (and (listp e)
-			(car e))
-		   (car e)
-		   (intern "clpcl-let")))
-	     arglist))
-	(ps (mapcar
-	     (lambda (e)
-	       (if (listp e)
-		   (cadr e)
-		 e))
-	     arglist))
-	)
+  (let* ((igs nil)       ;; ignore list
+	 (vs (mapcar
+	      (lambda (e)
+		(if (and (listp e)
+			 (car e))
+		    (car e)
+		    (progn
+		      (let ((s (intern "clpcl-let")))
+			(setq igs (cons s igs))
+			s))
+		    )
+		)
+	      arglist))
+	 (ps (mapcar
+	      (lambda (e)
+		(if (listp e)
+		    (cadr e)
+		    e))
+	      arglist))
+	 )
     `(clpcl-bind-seq
       (clpcl-seq ,@ps)
-      (lambda ,vs ,@body))
-    ))
+      (lambda ,vs
+	(declare (ignore ,@igs))
+		 ,@body))
+    )
+  )
 
 
 (defun clpcl-m-bind (p func)
