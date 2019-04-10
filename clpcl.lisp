@@ -84,23 +84,22 @@
 	  (ret nil))
 
       (loop
-	 if
+	 while
 	   (let ((r (funcall p text pos)))
 	     (match r
 	       ((success :pos pos1 :value v)
 		(setq pos pos1)
 		(setq ret (cons v ret))
-		nil
+		t
 		)
 	       ((failure :pos pos1)
 		(if (/= pos pos1)
 		    (setq success nil)
 		    (setq success t))
-		t)
+		t
+		nil)
 	       )
 	     )
-	   
-	 return nil
 	   )
 	   
       (if success
@@ -183,20 +182,19 @@
 	  (ret  nil)
 	  (failed nil))
       (loop for p in ps
-	 if
+	 while
 	   (match (funcall p text pos0)
 	     ((success :pos pos1 :value v)
 	      (setq pos0 pos1)
 	      (setq ret (cons v ret))
-	      nil)
+	      t)
 	     ((failure :pos pos1)
 	      (setq pos0 pos1)
 	      (setq failed t)
-	      t)
+	      nil)
 	     (otherwise
 	      (error "xxxxxxx"))
 	     )
-	   return nil
 	   )
       (if failed
 	  (failure pos0)
@@ -209,17 +207,18 @@
     (let ((ret nil))
 
       (loop for p in ps
-	 if
+	 while
 	   (let ((r (funcall p text pos)))
 	     (match r
 	       ((success)
 		(setq ret r)
-		t)
+		nil)
 	       ((failure :pos pos1)
 		(if (/= pos pos1)
 		    (progn
 		      (setq ret r)
-		      t)
+		      nil)
+		    t
 		    )
 		)
 	       (otherwise
@@ -227,7 +226,6 @@
 		)
 	       )
 	     )
-	 return nil
 	 )
 	      
       (if ret
