@@ -140,4 +140,30 @@
     )
   )
 
+(test clpcl-chainl-1
+  "test for clpcl-let*"
+  (let* ((d  (clpcl-let
+	      ((s (clpcl-regexp "\\d+")))
+	      (parse-integer s)))
+	 (op (clpcl-let
+	      ((nil (clpcl-regexp "\\+")))
+	      #'+))
+	 (c (clpcl-chainl-1 d op))
+	 )
+    (is
+     (equalp
+      (success 3 3)
+      (clpcl-parse c "1+2"))
+     )
+    (is
+     (equalp
+      (success 9 15)
+      (clpcl-parse c "1+2+3+4+5"))
+     )
+    )
+  )
+
+
+
+
 

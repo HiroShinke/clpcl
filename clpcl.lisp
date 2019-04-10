@@ -16,6 +16,8 @@
 	   :clpcl-parse
 	   :clpcl-let*
 	   :clpcl-return
+	   :clpcl-chainr-1
+	   :clpcl-chainl-1
 	   :clpcl-*)
   )
 (in-package :clpcl)
@@ -116,6 +118,65 @@
    (cons v vs)))
 
 
+(defun stack-machine (ops
+		      vs
+		      flip)
+  (loop
+     while ops
+     do (
+	 let* ((o  (car ops))
+	       (v1 (car vs))
+	       (v2 (cadr vs))
+	       (v  (funcall (funcall flip o) v1 v2)))
+	  (setq ops (cdr ops))
+	  (setq vs (cons v (cddr vs)))
+	  )
+       )
+  (car vs)
+  )
+
+(defun chain-parser (p op eval)
+
+  (let* ((opp   (clpcl-seq op p))
+	 (chain (clpcl-seq p (clpcl-many opp))))
+
+    (clpcl-bind-seq
+     chain
+     (lambda (v opvs)
+       (let ((vs (cons v (mapcar #'cadr opvs)))
+	     (ops (mapcar #'car opvs)))
+	 (funcall eval ops vs)
+	 )
+       )
+     )
+    )
+  )
+
+
+(defun clpcl-chainl-1 (p op)
+  (chain-parser
+   p
+   op
+   (lambda (ops vs)
+     (stack-machine ops
+			  vs
+			  (lambda (n) n)
+			  )))
+  )
+
+(defun clpcl-chainr-1 (p op)
+  (chain-parser
+   p
+   op
+   (lambda (ops vs)
+     (stack-machine (reverse ops)
+			  (reverse vs)
+			  (lambda (x) (lambda (n m)
+					(funcall x m n)))
+			  )))
+  )
+
+
 (defun clpcl-seq (&rest ps)
   (lambda (text pos)
     (let ((pos0 pos)
@@ -177,9 +238,9 @@
   )
 
 (defmacro clpcl-lazy (p0)
-  `(clpcl--lazy-helper (lambda () ,p0)))
+  `(lazy-helper (lambda () ,p0)))
   
-(defun clpcl--lazy-helper (p0)
+(defun lazy-helper (p0)
   (let ((p nil))
     (lambda (text pos)      
       (if (not p) (setq p (funcall p0)))
@@ -240,16 +301,16 @@
 (defun clpcl-let*-helper (args body)  
   (match args
     ((cons (list s p) rest)
-     (clpcl--bind-template p (if s s (intern "s")) rest body))
+     (bind-template p (if s s (intern "s")) rest body))
     ((cons p rest)
-     (clpcl--bind-template p (intern "s") rest body))     
+     (bind-template p (intern "s") rest body))     
     (nil
      `(clpcl-return (progn ,@body))
      )
     )
   )
 
-(defun clpcl--bind-template (p s as body)
+(defun bind-template (p s as body)
   `(clpcl-m-bind
     ,p
     (lambda (,s)
