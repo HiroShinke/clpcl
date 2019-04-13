@@ -8,7 +8,10 @@
 	   :clpcl-let
 	   :clpcl-debug
 	   :clpcl-regexp
-	   :clpcl-many
+	   :clpcl-lookahead
+	   :clpcl-many	   
+	   :clpcl-many-till
+	   :clpcl-not-followed
 	   :clpcl-seq
 	   :clpcl-or
 	   :clpcl-token
@@ -349,12 +352,14 @@
      parser end succeeds. Returns the list of values returned by p."
 
     (lambda (text pos)
-      (let ((ret nil))
+      (let ((ret nil)
+	    (err nil))
 	(loop
 	   while
 	     (let ((r (funcall till text pos)))
 	       (match r
-		 ((success)
+		 ((success :pos pos1)
+		  (setq pos pos1)
 		  nil)
 		 (otherwise
 		  (let ((r1 (funcall p text pos)))
@@ -365,9 +370,13 @@
 		       t)
 		      ((failure :pos pos1)
 		       (setq pos pos1)
+		       (setq err t)
 		       nil))))))
 	     )
-	(success pos ret))
+	(if err
+	    (failure pos)
+	    (success pos ret))
+	)
       )
     )
 
@@ -392,7 +401,7 @@
       (match r
 	((success)
 	 (failure pos))
-	((failure :pos pos1)
+	((failure)
 	 (success pos nil)))))
   )
 

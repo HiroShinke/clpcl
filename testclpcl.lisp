@@ -7,9 +7,6 @@
 (def-suite :clpcl)
 (in-suite :clpcl)
 
-;;(ql:quickload :clpcl)
-(use-package :clpcl)
-
 (test simple-regexp
   "test for pprp based Regexp parser"
   (is (equalp
@@ -69,6 +66,55 @@
     )
   )
 
+(test lookahead-parser
+  "test for parser seq"
+  (let* ((a (clpcl-regexp "a"))
+	 (b (clpcl-regexp "b"))
+	 (c (clpcl-regexp "c"))	 
+	 (p (clpcl-let ((x a)
+			(y b)
+			(z (clpcl-lookahead c)))
+		       (concatenate 'string x y z))))
+    (is
+     (equalp
+      (success 2 "abc")
+      (clpcl-parse p "abc")
+      )
+     )
+    (is
+     (equalp
+      (failure 2)
+      (clpcl-parse p "abd")
+      )
+     )
+    )
+  )
+
+(test not-followed-parser
+  "test for parser seq"
+  (let* ((a (clpcl-regexp "a"))
+	 (b (clpcl-regexp "b"))
+	 (c (clpcl-regexp "c"))	 
+	 (p (clpcl-let ((x a)
+			(y b)
+			(nil (clpcl-not-followed c)))
+		       (concatenate 'string x y))))
+    (is
+     (equalp
+      (failure 2)
+      (clpcl-parse p "abc")
+      )
+     )
+    (is
+     (equalp
+      (success 2 "ab")
+      (clpcl-parse p "abd")
+      )
+     )
+    )
+  )
+
+
 (test many-parser
   "test for parser seq"
   (let* ((a (clpcl-regexp "a"))
@@ -127,6 +173,34 @@
      )
     )
   )
+
+
+(test many-till-parser
+  "test for parser seq"
+  (let* ((a (clpcl-regexp "a"))
+	 (b (clpcl-regexp "b"))
+	 (p (clpcl-many-till a b)))
+    (is
+     (equalp
+      (success 4 '("a" "a" "a"))
+      (clpcl-parse p "aaab")
+      )
+     )
+    (is
+     (equalp
+      (failure 3)
+      (clpcl-parse p "aaa")
+      )
+     )
+    (is
+     (equalp
+      (failure 3)
+      (clpcl-parse p "aaaxb")
+      )
+     )
+    )
+  )
+
 
 (test debug-parser
   "test for parser seq"
