@@ -6,6 +6,7 @@
   (:export :success
 	   :failure
 	   :clpcl-let
+	   :clpcl-bind
 	   :clpcl-debug
 	   :clpcl-regexp
 	   :clpcl-lookahead
@@ -26,6 +27,7 @@
 	   :clpcl-sep-end-by
 	   :clpcl-sep-end-by-1
 	   :clpcl-let*
+	   :clpcl-lazy
 	   :clpcl-return
 	   :clpcl-chainr-1
 	   :clpcl-chainl-1
@@ -54,7 +56,7 @@
 (defun clpcl-token (p)
   (clpcl-try
    (clpcl-let
-    ((nil (clpcl-regexp "\\s+"))
+    ((nil (clpcl-regexp "\\s*"))
      (v p))
     v)
    )

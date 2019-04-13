@@ -22,6 +22,11 @@
 (test token-parser
   "test for pprp based Regexp parser"
   (is (equalp
+       (success 1 "a")
+       (let* ((a (clpcl-regexp "a"))
+	      (p (clpcl-token a)))
+	 (clpcl-parse p "a"))))
+  (is (equalp
        (success 4 "a")
        (let* ((a (clpcl-regexp "a"))
 	      (p (clpcl-token a)))
@@ -313,6 +318,21 @@
     )
   )
 
+(test clpcl-bind
+  "test for clpcl-let*"
+  (let* ((d (clpcl-bind
+	     (clpcl-regexp "\\d+")
+	     #'parse-integer)
+	   )
+	 )
+    (is
+     (equalp
+      (success 1 1)
+      (clpcl-parse d "1"))
+     )
+    )
+  )
+
 (test clpcl-chainl-1
   "test for clpcl-let*"
   (let* ((d  (clpcl-let
@@ -327,6 +347,11 @@
      (equalp
       (success 3 3)
       (clpcl-parse c "1+2"))
+     )
+    (is
+     (equalp
+      (success 1 1)
+      (clpcl-parse c "1"))
      )
     (is
      (equalp
