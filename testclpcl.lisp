@@ -314,9 +314,14 @@
       (clpcl-parse p "a,a,a")
       )
      )
+    (is
+     (equalp
+      (failure 4)
+      (clpcl-parse p "a,a,x")
+      )
+     )
     )
   )
-
 
 (test clpcl-sep-by-1
   "test for clpcl-option"
@@ -339,6 +344,12 @@
       (clpcl-parse p "a,a,a")
       )
      )
+    (is
+     (equalp
+      (failure 4)
+      (clpcl-parse p "a,a,x")
+      )
+     )
     )
   )
 
@@ -349,18 +360,29 @@
 	 (p (clpcl-end-by a sep)))
     (is
      (equalp
+      (failure 1)
+      (clpcl-parse p "a"))
+     )
+    (is
+     (equalp
       (success 2 '("a"))
       (clpcl-parse p "a;"))
      )
     (is
      (equalp
-      (success 0 '())
+      (success 1 '())
       (clpcl-parse p ";b"))
      )
     (is
      (equalp
       (success 6 '("a" "a" "a"))
       (clpcl-parse p "a;a;a;")
+      )
+     )
+    (is
+     (equalp
+      (failure 3)
+      (clpcl-parse p "a;axa;")
       )
      )
     (is
@@ -380,6 +402,11 @@
 	 (p (clpcl-end-by-1 a sep)))
     (is
      (equalp
+      (failure 1)
+      (clpcl-parse p "a"))
+     )
+    (is
+     (equalp
       (success 2 '("a"))
       (clpcl-parse p "a;"))
      )
@@ -394,8 +421,93 @@
       (clpcl-parse p "a;a;a;")
       )
      )
+    (is
+     (equalp
+      (failure 3)
+      (clpcl-parse p "a;axa;")
+      )
+     )
     )
   )
+
+(test clpcl-sep-end-by-1
+  "test for clpcl-option"
+  (let* ((a (clpcl-regexp "a"))
+	 (sep (clpcl-regexp ";"))
+	 (p (clpcl-sep-end-by-1 a sep)))
+    (is
+     (equalp
+      (success 1 '("a"))
+      (clpcl-parse p "a"))
+     )
+    (is
+     (equalp
+      (success 2 '("a"))
+      (clpcl-parse p "a;"))
+     )
+    (is
+     (equalp
+      (failure 0)
+      (clpcl-parse p ";b"))
+     )
+    (is
+     (equalp
+      (success 6 '("a" "a" "a"))
+      (clpcl-parse p "a;a;a;")
+      )
+     )
+    (is
+     (equalp
+      (success 1 '("a"))
+      (clpcl-parse p "aaa;")
+      )
+     )
+    )
+  )
+
+
+(test clpcl-sep-end-by
+  "test for clpcl-option"
+  (let* ((a (clpcl-regexp "a"))
+	 (sep (clpcl-regexp ";"))
+	 (p (clpcl-sep-end-by a sep)))
+    (is
+     (equalp
+      (success 1 '("a"))
+      (clpcl-parse p "a"))
+     )
+    (is
+     (equalp
+      (success 2 '("a"))
+      (clpcl-parse p "a;"))
+     )
+    (is
+     (equalp
+      (success 1 '())
+      (clpcl-parse p ";b"))
+     )
+    (is
+     (equalp
+      (success 6 '("a" "a" "a"))
+      (clpcl-parse p "a;a;a;")
+      )
+     )
+    (is
+     (equalp
+      (success 5 '("a" "a" "a"))
+      (clpcl-parse p "a;a;a")
+      )
+     )
+    (is
+     (equalp
+      (success 1 '("a"))
+      (clpcl-parse p "aaa;")
+      )
+     )
+    )
+  )
+
+
 
 
 

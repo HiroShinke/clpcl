@@ -20,6 +20,8 @@
 	   :clpcl-sep-by-1
 	   :clpcl-end-by
 	   :clpcl-end-by-1
+	   :clpcl-sep-end-by
+	   :clpcl-sep-end-by-1
 	   :clpcl-let*
 	   :clpcl-return
 	   :clpcl-chainr-1
@@ -230,16 +232,33 @@
 
   "endBy p sep parses zero or more occurrences of p, 
    separated and ended by sep. 
-   Returns a list of values returned by p."
-  (clpcl-option (clpcl-end-by-1 p sep))
+   Returns a list of values returned by p.
 
+   allow patterns bellow.
+
+   (nothing)
+   p sep
+   p sep p sep
+   p sep p sep p sep
+
+   "
+
+  (clpcl-or (clpcl-let (sep) nil)
+	    (clpcl-option (clpcl-end-by-1 p sep)))
   )
 
 (defun clpcl-end-by-1 (p sep)
 
   "endBy p sep parses one or more occurrences of p, 
    separated and ended by sep. 
-   Returns a list of values returned by p."
+   Returns a list of values returned by p.
+
+   allow patterns bellow.
+
+   p sep
+   p sep p sep
+   p sep p sep p sep
+  "
 
   (let (
 	(psep   (clpcl-let ((v p) sep) v))
@@ -252,28 +271,108 @@
 
   "sepEndBy p sep parses zero or more occurrences of p, 
    separated and optionally ended by sep, ie. 
-   haskell style statements. Returns a list of values returned by p."
+   haskell style statements. Returns a list of values returned by p.
 
-  (clpcl-option (clpcl-sep-end-by-1 p sep))
+   allow
 
+   (nothing)
+   sep
+   p
+   p sep
+   p sep p 
+   p sep p sep
+
+   ....
+  "
+
+  (clpcl-or (clpcl-let (sep) nil)
+	    (clpcl-option (clpcl-sep-end-by-1 p sep)))
   )
 
 (defun clpcl-sep-end-by-1 (p sep)
 
   "sepEndBy p sep parses one or more occurrences of p, 
    separated and optionally ended by sep, ie. 
-   haskell style statements. Returns a list of values returned by p."
+   haskell style statements. Returns a list of values returned by p.
 
-  (let* (
-	 (sepp (clpcl-let (sep (v p)) v))
-	 )
-    (clpcl-let ((v p)
-	       (vs (clpcl-many sepp))
-	       (nil (clpcl-option sep)))
-	      (cons v vs)))
+   allow
+
+   p
+   p sep
+   ....
+   p sep p sep p
+   p sep p sep p sep
+
+   "
+  (lambda (text pos)
+    (let ((ret nil)
+	  (err t))
+      (loop
+	 while
+	   (let ((r (funcall p text pos)))
+	     (match r
+	       ((success :pos pos1 :value v)
+		(setq pos pos1)
+		(setq ret (cons v ret))
+		(setq err nil)
+		(let ((s (funcall sep text pos)))
+		  (match s
+		    ((success :pos pos1)
+		     (setq pos pos1)
+		     t)
+		    ((failure :pos pos1)
+		     (if (/= pos pos1)
+			 (progn
+			   (setq err t)
+			   (setq pos pos1)))
+		     nil)))
+		
+		)
+	       ((failure :pos pos1)
+		(if (/= pos pos1)
+		    (progn
+		      (setq err t)
+		      (setq pos pos1)))
+		nil)))
+	   )
+      (if err
+	  (failure pos)
+	  (success pos ret))
+      )
+    )
   )
 
+
+(defun clpcl-many-till (p till)
+
+    "manyTill p end applies parser p zero or more times until 
+     parser end succeeds. Returns the list of values returned by p."
+
+    (lambda (text pos)
+      (let ((ret nil))
+	(loop
+	   while
+	     (let ((r (funcall till text pos)))
+	       (match r
+		 ((success)
+		  nil)
+		 (otherwise
+		  (let ((r1 (funcall p text pos)))
+		    (match r1
+		      ((success :pos pos1 :value v)
+		       (setq pos pos1)
+		       (setq ret (cons v ret))
+		       t)
+		      ((failure :pos pos1)
+		       (setq pos pos1)
+		       nil))))))
+	     )
+	(success pos ret))
+      )
+    )
+
 (defun clpcl-lookahead (p)
+
   (lambda (text pos)
     (let ((r (funcall p text pos)))
       (match r
@@ -283,15 +382,19 @@
 	 r)))))
 
 (defun clpcl-not-followed (p)
+
+  "notFollowedBy p only succeeds when parser p fails. 
+   This parser does not consume any input. 
+   This parser can be used to implement the 'longest match' rule. "
+
   (lambda (text pos)
     (let ((r (funcall p text pos)))
       (match r
 	((success)
 	 (failure pos))
 	((failure :pos pos1)
-	 (if (/= pos pos1)
-	     r
-	     (success pos nil)))))))
+	 (success pos nil)))))
+  )
 
 (defun clpcl-seq (&rest ps)
   (lambda (text pos)
