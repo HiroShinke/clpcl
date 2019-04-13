@@ -13,7 +13,13 @@
 	   :clpcl-or
 	   :clpcl-token
 	   :clpcl-try
+	   :clpcl-option
 	   :clpcl-parse
+	   :clpcl-paren
+	   :clpcl-sep-by
+	   :clpcl-sep-by-1
+	   :clpcl-end-by
+	   :clpcl-end-by-1
 	   :clpcl-let*
 	   :clpcl-return
 	   :clpcl-chainr-1
@@ -60,7 +66,10 @@
 	 r)))))
 
 (defun clpcl-regexp (regexp)
-  (let ((scanner (create-scanner regexp)))
+  (let ((scanner (create-scanner (concatenate
+				  'string
+				  "^"
+				  regexp))))
     (lambda (text pos)
       (multiple-value-bind
 	    (s e rs re)
@@ -73,7 +82,7 @@
 (defun clpcl-debug (label p)
   (lambda (text pos)
     (let ((r (funcall p text pos)))
-      (format t "label=~S,ret=~S" label r)
+      (format t "label=~S,ret=~S~%" label r)
       r)))
 
 (defun clpcl-many (p)
@@ -94,7 +103,10 @@
 		)
 	       ((failure :pos pos1)
 		(if (/= pos pos1)
-		    (setq success nil)
+		    (progn
+		      (setq pos pos1)
+		      (setq success nil)
+		      )
 		    (setq success t))
 		nil)
 	       )
@@ -174,6 +186,112 @@
 			  )))
   )
 
+(defun clpcl-paren (po p pc)
+  (clpcl-let (po (x p) pc) x)
+  )
+
+(defun clpcl-option (p)
+  (lambda (text pos)
+    (let ((r (funcall p text pos)))
+      (match r
+	((success) r)
+	((failure :pos pos1)
+	 (if (= pos pos1)
+	     (success pos1 nil)
+	     r))))))
+
+(defun clpcl-sep-by (p sep)
+  
+  "sepBy p sep parses zero or more occurrences of p, 
+   separated by sep. 
+   Returns a list of values returned by p."
+  (clpcl-option (clpcl-sep-by-1 p sep))
+  )
+
+(defun clpcl-sep-by-1 (p sep)
+
+  "sepBy1 p sep parses one or more occurrences of p, 
+   separated by sep. 
+   Returns a list of values returned by p."
+
+  (let* (
+	 (sepp   (clpcl-let (sep (v p)) v))
+	)
+    (clpcl-let ((v p)
+		(vs (clpcl-many sepp)))
+	      (if v
+		  (cons v vs)
+		nil)
+	      )
+    )
+  )
+
+(defun clpcl-end-by (p sep)
+
+  "endBy p sep parses zero or more occurrences of p, 
+   separated and ended by sep. 
+   Returns a list of values returned by p."
+  (clpcl-option (clpcl-end-by-1 p sep))
+
+  )
+
+(defun clpcl-end-by-1 (p sep)
+
+  "endBy p sep parses one or more occurrences of p, 
+   separated and ended by sep. 
+   Returns a list of values returned by p."
+
+  (let (
+	(psep   (clpcl-let ((v p) sep) v))
+	)
+    (clpcl-many-1 psep)
+    )
+  )
+
+(defun clpcl-sep-end-by (p sep)
+
+  "sepEndBy p sep parses zero or more occurrences of p, 
+   separated and optionally ended by sep, ie. 
+   haskell style statements. Returns a list of values returned by p."
+
+  (clpcl-option (clpcl-sep-end-by-1 p sep))
+
+  )
+
+(defun clpcl-sep-end-by-1 (p sep)
+
+  "sepEndBy p sep parses one or more occurrences of p, 
+   separated and optionally ended by sep, ie. 
+   haskell style statements. Returns a list of values returned by p."
+
+  (let* (
+	 (sepp (clpcl-let (sep (v p)) v))
+	 )
+    (clpcl-let ((v p)
+	       (vs (clpcl-many sepp))
+	       (nil (clpcl-option sep)))
+	      (cons v vs)))
+  )
+
+(defun clpcl-lookahead (p)
+  (lambda (text pos)
+    (let ((r (funcall p text pos)))
+      (match r
+	((success :value v)
+	 (success pos v))
+	(otherwise
+	 r)))))
+
+(defun clpcl-not-followed (p)
+  (lambda (text pos)
+    (let ((r (funcall p text pos)))
+      (match r
+	((success)
+	 (failure pos))
+	((failure :pos pos1)
+	 (if (/= pos pos1)
+	     r
+	     (success pos nil)))))))
 
 (defun clpcl-seq (&rest ps)
   (lambda (text pos)
@@ -269,7 +387,7 @@
 			 (car e))
 		    (car e)
 		    (progn
-		      (let ((s (intern "clpcl-let")))
+		      (let ((s (gensym "clpcl-let")))
 			(setq igs (cons s igs))
 			s))
 		    )
@@ -307,9 +425,9 @@
 (defun clpcl-let*-helper (args body)  
   (match args
     ((cons (list s p) rest)
-     (bind-template p (if s s (intern "s")) rest body))
+     (bind-template p (if s s (gensym "s")) rest body))
     ((cons p rest)
-     (bind-template p (intern "s") rest body))     
+     (bind-template p (gensym "s") rest body))     
     (nil
      `(clpcl-return (progn ,@body))
      )
