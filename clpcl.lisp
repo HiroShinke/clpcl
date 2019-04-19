@@ -8,9 +8,11 @@
 	   :clpcl-let
 	   :clpcl-bind
 	   :clpcl-debug
+	   :clpcl-def-parsers
 	   :clpcl-regexp
 	   :clpcl-lookahead
-	   :clpcl-many	   
+	   :clpcl-many
+	   :clpcl-many-1	   
 	   :clpcl-many-till
 	   :clpcl-not-followed
 	   :clpcl-seq
@@ -563,7 +565,34 @@
     (success pos v)))
 
 
+(defun lazy-wrapper (p vs accm)
+  (if (atom p)
+      (if (and (member p vs) (not (member p accm)))
+	  `(clpcl-lazy ,p)
+	  p
+	  )
+      (cons (lazy-wrapper (car p) vs accm)
+	    (lazy-wrapper (cdr p) vs accm))
+      )
+  )
 
-    
+(defun def-parsers-helper (vs ps accm)
+  (if vs 
+      (let ((v (car vs))
+	    (p (car ps)))
+	(cons `(setq ,v ,(lazy-wrapper p vs accm))
+	      (def-parsers-helper (cdr vs)
+				  (cdr ps)
+				  (cons v accm)))))
+  )
 
+(defmacro clpcl-def-parsers (assigns &rest body)
+  (let ((vs (mapcar #'car assigns))
+	(ps (mapcar #'cadr assigns)))
+    `(let ,(mapcar (lambda (n) (list n nil)) vs)
+       ,@(def-parsers-helper vs ps nil)
+       ,@body
+       )
+    )
+  )
   
