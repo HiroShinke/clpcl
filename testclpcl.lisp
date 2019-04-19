@@ -607,6 +607,21 @@
   )
 
 
-
+(test clpcl-def-parsers
+  "test for clpcl-def-parsers"
+  (let ((p
+	 (clpcl-def-parsers
+	  ((x (clpcl-seq a b c))
+	   (a (clpcl-regexp "a"))
+	   (b (clpcl-regexp "b"))     
+	   (c (clpcl-regexp "c")))
+	  x)))
+    (is
+     (equalp
+      (success 3 '("a" "b" "c"))
+      (clpcl-parse p "abc"))
+     )
+    )
+  )
 
 
