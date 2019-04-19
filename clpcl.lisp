@@ -587,6 +587,14 @@
   )
 
 (defmacro clpcl-def-parsers (assigns &rest body)
+  
+  " 
+  Define a set of parsers.
+  The parsers will be defined in order.
+  If the parser refered in righthand side is recursive and not defined at that time
+  the parser reference will be wrapped in clpcl-lazy
+  "
+
   (let ((vs (mapcar #'car assigns))
 	(ps (mapcar #'cadr assigns)))
     `(let ,(mapcar (lambda (n) (list n nil)) vs)
