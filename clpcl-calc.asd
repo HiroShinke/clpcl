@@ -1,9 +1,9 @@
 
 
 (in-package :cl-user)
-(defpackage clpcl-calc
+(defpackage clpcl-calc-asd
   (:use :cl :asdf :uiop))
-(in-package :clpcl-calc)
+(in-package :clpcl-calc-asd)
 
 (defsystem "clpcl-calc"
   :version "0.0.1"
