@@ -16,6 +16,7 @@
 	   :clpcl-many-till
 	   :clpcl-not-followed
 	   :clpcl-seq
+	   :clpcl-string
 	   :clpcl-or
 	   :clpcl-token
 	   :clpcl-try
@@ -87,6 +88,50 @@
 	(if s
 	    (success e (subseq text s e))
 	    (failure pos))))))
+
+(defun clpcl-string (&optional q)
+  (lambda (text pos0)
+    (let ((l (length text))
+	  (pos pos0)
+	  (state 0)
+	  (s nil)
+	  (e nil)
+	  )
+
+      (loop
+	 while (and (< pos l) (< state 2))
+	 do
+	   (let ((c (aref text pos)))
+	     (cond
+	       ((= state 0)
+		(if (not q)
+		    (if (or (char= c #\") (char= c #\'))
+			(setq q c)))
+		(if (char= c q)
+		    (progn (setq state 1)
+			   (setq s pos)
+		           (setq q c)
+			   )
+		    (setq state 2)
+		    )
+		)
+	       ((= state 1)
+		(if (char= c q)
+		    (progn (setq state 2)
+			   (setq e (+ pos 1))
+			   )
+		    )
+		)
+	       )
+	     (setq pos (+ pos 1))
+	     )
+	   )
+      (if (and s e)
+	  (success e (subseq text s e))
+	  (failure pos0))
+      )
+    )
+  )
 
 (defun clpcl-debug (label p)
   (lambda (text pos)
