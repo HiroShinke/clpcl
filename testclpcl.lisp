@@ -674,6 +674,11 @@
       (failure 0)
       (clpcl-parse sq "abc"))
      )
+    (is
+     (equalp
+      (success 11 "\"a\\uabcdbc\"")
+      (clpcl-parse dq "\"a\\uabcdbc\""))
+     )
     )
   )
 

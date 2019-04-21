@@ -90,50 +90,36 @@
 	    (failure pos))))))
 
 (defun clpcl-string (&optional (q-char #\"))
+  (let (
+	(qexp  (if (null q-char)
+		   "\"|\'"
+		   (concatenate
+		    'string
+		    (list q-char))))
+	(not-qexp (if
+		   (null q-char)
+		   "[^\"\'\\\\]+"
+		   (concatenate
+		    'string
+		    "[^" (list q-char) "\\\\]+")))
+	)
 
-  (lambda (text pos0)
+    (clpcl-let ((op (clpcl-regexp qexp))
+		(ss (clpcl-many
+		     (clpcl-or
+		      (clpcl-regexp not-qexp)
+		      (clpcl-regexp "\\\\'")
+		      (clpcl-regexp "\\\\\"")
+		      (clpcl-regexp "\\\\(r|n|f|t|b)")
+		      (clpcl-regexp "\\\\[0-7]{3}")
+		      (clpcl-regexp "\\\\x[0-9a-fA-F]{2}")
+		      (clpcl-regexp "\\\\u[0-9a-fA-F]{4}"))))
+		(cp (clpcl-regexp qexp)))
 
-    (let ((l (length text))
-	  (pos pos0)
-	  (state 0)
-	  (s nil)
-	  (e nil)
-	  (q q-char)
-	  )
-
-      (loop
-	 while (and (< pos l) (< state 2))
-	 do
-	   (let ((c (aref text pos)))
-	     (cond
-	       ((= state 0)
-		(if (null q)  ;; if nil specified
-		    (if (or (char= c #\") (char= c #\'))
-			(setq q c)
-			(setq q #\")))
-		(if (char= c q)
-		    (progn (setq state 1)
-			   (setq s pos)
-		           (setq q c)
-			   )
-		    (setq state 2)
-		    )
-		)
-	       ((= state 1)
-		(if (char= c q)
-		    (progn (setq state 2)
-			   (setq e (+ pos 1))
-			   )
-		    )
-		)
+	       (concatenate 'string op 
+			    (apply #'concatenate 'string ss )
+			    cp)
 	       )
-	     (setq pos (+ pos 1))
-	     )
-	   )
-      (if (and s e)
-	  (success e (subseq text s e))
-	  (failure pos0))
-      )
     )
   )
 
