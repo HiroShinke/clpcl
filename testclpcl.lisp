@@ -626,7 +626,9 @@
 
 (test clpcl-string
   "test for clpcl-string"
-  (let ((p (clpcl-string)))
+  (let ((p (clpcl-string nil))
+	(dq (clpcl-string #\"))
+	(sq (clpcl-string #\')))
     (is
      (equalp
       (success 5 "'abc'")
@@ -634,8 +636,43 @@
      )
     (is
      (equalp
+      (success 5 "\"abc\"")
+      (clpcl-parse p "\"abc\""))
+     )
+    (is
+     (equalp
       (failure 0)
       (clpcl-parse p "abc"))
+     )
+    (is
+     (equalp
+      (failure 0)
+      (clpcl-parse dq "'abc'"))
+     )
+    (is
+     (equalp
+      (success 5 "\"abc\"")
+      (clpcl-parse dq "\"abc\""))
+     )
+    (is
+     (equalp
+      (failure 0)
+      (clpcl-parse dq "abc"))
+     )
+    (is
+     (equalp
+      (success 5 "'abc'")
+      (clpcl-parse sq "'abc'"))
+     )
+    (is
+     (equalp
+      (failure 0)
+      (clpcl-parse sq "\"abc\""))
+     )
+    (is
+     (equalp
+      (failure 0)
+      (clpcl-parse sq "abc"))
      )
     )
   )

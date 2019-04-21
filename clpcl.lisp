@@ -89,13 +89,16 @@
 	    (success e (subseq text s e))
 	    (failure pos))))))
 
-(defun clpcl-string (&optional q)
+(defun clpcl-string (&optional (q-char #\"))
+
   (lambda (text pos0)
+
     (let ((l (length text))
 	  (pos pos0)
 	  (state 0)
 	  (s nil)
 	  (e nil)
+	  (q q-char)
 	  )
 
       (loop
@@ -104,9 +107,10 @@
 	   (let ((c (aref text pos)))
 	     (cond
 	       ((= state 0)
-		(if (not q)
+		(if (null q)  ;; if nil specified
 		    (if (or (char= c #\") (char= c #\'))
-			(setq q c)))
+			(setq q c)
+			(setq q #\")))
 		(if (char= c q)
 		    (progn (setq state 1)
 			   (setq s pos)
