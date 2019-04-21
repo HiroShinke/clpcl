@@ -679,6 +679,11 @@
       (success 11 "\"a\\uabcdbc\"")
       (clpcl-parse dq "\"a\\uabcdbc\""))
      )
+    (is
+     (equalp
+      (success 7 "\"a\\\\bc\"")
+      (clpcl-parse dq "\"a\\\\bc\""))
+     )
     )
   )
 

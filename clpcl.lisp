@@ -90,6 +90,9 @@
 	    (failure pos))))))
 
 (defun clpcl-string (&optional (q-char #\"))
+
+  "This parser parses java-like string literals"
+
   (let (
 	(qexp  (if (null q-char)
 		   "\"|\'"
@@ -113,10 +116,13 @@
 		      (clpcl-regexp "\\\\(r|n|f|t|b)")
 		      (clpcl-regexp "\\\\[0-7]{3}")
 		      (clpcl-regexp "\\\\x[0-9a-fA-F]{2}")
-		      (clpcl-regexp "\\\\u[0-9a-fA-F]{4}"))))
+		      (clpcl-regexp "\\\\u[0-9a-fA-F]{4}")
+		      (clpcl-regexp "\\\\.")
+		      )))
 		(cp (clpcl-regexp qexp)))
 
-	       (concatenate 'string op 
+	       (concatenate 'string
+			    op 
 			    (apply #'concatenate 'string ss )
 			    cp)
 	       )
