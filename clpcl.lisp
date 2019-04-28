@@ -420,7 +420,7 @@
 	     )
 	(if err
 	    (failure pos)
-	    (success pos ret))
+	    (success pos (reverse ret)))
 	)
       )
     )

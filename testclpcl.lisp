@@ -689,3 +689,30 @@
 
 
 
+(test clpcl-many-till
+  "test for clpcl-string"
+  (let* ((cs (clpcl-regexp "/\\*"))
+	 (ce (clpcl-regexp "\\*/"))
+	 (any (clpcl-regexp "."))
+	 (xs (clpcl-many-till any ce))
+	 (comment (clpcl-let
+		   (cs
+		    (as xs))
+		   as))
+	 )
+    (is
+     (equalp
+      (success 5 '("a" "b" "c"))
+      (clpcl-parse xs "abc*/"))
+     )
+    (is
+     (equalp
+      (success 7 '("a" "b" "c"))
+      (clpcl-parse comment "/*abc*/")
+      )
+     )
+    )
+  )
+
+
+
