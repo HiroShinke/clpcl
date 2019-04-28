@@ -56,12 +56,11 @@
 (defun clpcl-parse (parser text)
   (funcall parser text 0))
 
-(defun clpcl-token (p)
+(defun clpcl-token (p &optional spaces)
+  (if (null spaces)
+      (setq spaces (clpcl-regexp "\\s*")))
   (clpcl-try
-   (clpcl-let
-    ((nil (clpcl-regexp "\\s*"))
-     (v p))
-    v)
+   (clpcl-let (spaces (v p)) v)
    )
   )
 
