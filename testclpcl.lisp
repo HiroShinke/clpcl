@@ -119,6 +119,29 @@
     )
   )
 
+(test eof-parser
+  "test for parser seq"
+  (let* ((a (clpcl-regexp "a"))
+	 (b (clpcl-regexp "b"))
+	 (p (clpcl-let ((x a)
+			(y b)
+			(nil (clpcl-eof)))
+		       (concatenate 'string x y))))
+    (is
+     (equalp
+      (failure 2)
+      (clpcl-parse p "abc")
+      )
+     )
+    (is
+     (equalp
+      (success 2 "ab")
+      (clpcl-parse p "ab")
+      )
+     )
+    )
+  )
+
 
 (test many-parser
   "test for parser seq"

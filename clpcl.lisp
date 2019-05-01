@@ -15,6 +15,7 @@
 	   :clpcl-many-1	   
 	   :clpcl-many-till
 	   :clpcl-not-followed
+	   :clpcl-eof
 	   :clpcl-seq
 	   :clpcl-string
 	   :clpcl-or
@@ -448,6 +449,11 @@
 	((failure)
 	 (success pos nil)))))
   )
+
+(defun clpcl-eof ()
+  (clpcl-not-followed (clpcl-regexp "."))
+  )
+
 
 (defun clpcl-seq (&rest ps)
   (lambda (text pos)
