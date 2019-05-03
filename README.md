@@ -108,9 +108,9 @@ instead of p2, use:
 
 ```lisp
 
-   (clpcl-let* ((x p1)
-                (nil p2)
-                (y p3))
+   (clpcl-let ((x p1)
+               (nil p2)
+               (y p3))
      (list x y))
      
 ```
@@ -125,8 +125,8 @@ as the following:
 
 ```lisp
 
-   (clpcl-let ((x p1)
-               (y (if x p2 p3)))
+   (clpcl-let* ((x p1)
+                (y (if x p2 p3)))
       (list x y))
 ```
 
