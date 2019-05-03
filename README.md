@@ -191,8 +191,9 @@ from its definition rvalue and wraps it in clpcl-lazy.
 
 ## Examples
 
-Simple Calculator
+* Simple Calculator
 https://github.com/HiroShinke/clpcl/blob/master/clpcl-calc.asd
+
 https://github.com/HiroShinke/clpcl/blob/master/clpcl-calc.lisp
 
 ## Contribution
