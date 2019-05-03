@@ -45,30 +45,30 @@ in the Text.Parsec hackage page
 Basically, the following combinators correspond to
 Parsec's combinators, respectively.
 
-clpcl-lookahead
-clpcl-many
-clpcl-many-1	   
-clpcl-many-till
-clpcl-not-followed
-clpcl-eof
-clpcl-seq
-clpcl-string
-clpcl-or
-clpcl-token
-clpcl-try
-clpcl-option
-clpcl-parse
-clpcl-paren
-clpcl-sep-by
-clpcl-sep-by-1
-clpcl-end-by
-clpcl-end-by-1
-clpcl-sep-end-by
-clpcl-sep-end-by-1
-clpcl-return
-clpcl-chainr-1
-clpcl-chainl-1
-
+* clpcl-lookahead
+* clpcl-many
+* clpcl-many-1	   
+* clpcl-many-till
+* clpcl-not-followed
+* clpcl-eof
+* clpcl-seq
+* clpcl-string
+* clpcl-or
+* clpcl-token
+* clpcl-try
+* clpcl-option
+* clpcl-parse
+* clpcl-paren
+* clpcl-sep-by
+* clpcl-sep-by-1
+* clpcl-end-by
+* clpcl-end-by-1
+* clpcl-sep-end-by
+* clpcl-sep-end-by-1
+* clpcl-return
+* clpcl-chainr-1
+* clpcl-chainl-1
+  
 I will explain some of my own.
 
 * clpcl-let
