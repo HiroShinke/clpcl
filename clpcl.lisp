@@ -129,10 +129,16 @@
     )
   )
 
+(defparameter *debug-stack* nil)
+
 (defun clpcl-debug (label p)
   (lambda (text pos)
+    (format t (make-string (length *debug-stack*) :initial-element #\ ))
     (format t "label=~S,start,pos=~S~%" label pos)
+    (push label *debug-stack*)
     (let ((r (funcall p text pos)))
+      (pop *debug-stack*)
+      (format t (make-string (length *debug-stack*) :initial-element #\ ))
       (format t "label=~S,end,ret=~S~%" label r)
       r)))
 
