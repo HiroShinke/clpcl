@@ -131,8 +131,9 @@
 
 (defun clpcl-debug (label p)
   (lambda (text pos)
+    (format t "label=~S,start,pos=~S~%" label pos)
     (let ((r (funcall p text pos)))
-      (format t "label=~S,ret=~S~%" label r)
+      (format t "label=~S,end,ret=~S~%" label r)
       r)))
 
 (defun clpcl-many (p)
