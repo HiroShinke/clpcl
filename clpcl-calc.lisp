@@ -9,9 +9,7 @@
 
 
 (defun token-regexp (str)
-;;  (clpcl-debug (format "token, str=%s" str)
   (clpcl-token (clpcl-regexp str))
-;;  )
   )
 
 (defun clpcl-calc (text)
@@ -26,28 +24,30 @@
     addop   =   do{ symbol \"+\"; return (+) }
     <|> do{ symbol \"-\"; return (-) }
    "
-  (let* (
-	 (multop (clpcl-or
-		  (clpcl-let ((nil (token-regexp "\\*"))) #'*)
-		  (clpcl-let ((nil (token-regexp "/"))) #'/)))
-	 
-	 (addop  (clpcl-or
-		  (clpcl-let ((nil (token-regexp "\\+"))) #'+)
-		  (clpcl-let ((nil (token-regexp "-"))) #'-)))
-	 
-	 (digit (clpcl-bind (token-regexp "\\d+")
-			    #'parse-integer))
-	 (factor (clpcl-or
-		  (clpcl-paren (token-regexp "\\(")
-			       (clpcl-lazy expr)
-			       (token-regexp "\\)"))
-		  digit))
 
-	 (term (clpcl-chainl-1 factor multop))
-	 (expr (clpcl-chainl-1 term addop))
-	 )
-    (clpcl-parse expr text)
+  (clpcl-def-parsers
+   (
+    (multop (clpcl-or
+	     (clpcl-let ((nil (token-regexp "\\*"))) #'*)
+	     (clpcl-let ((nil (token-regexp "/"))) #'/)))
+    
+    (addop  (clpcl-or
+	     (clpcl-let ((nil (token-regexp "\\+"))) #'+)
+	     (clpcl-let ((nil (token-regexp "-"))) #'-)))
+    
+    (digit (clpcl-bind (token-regexp "\\d+") #'parse-integer))
+		       
+    (factor (clpcl-or (clpcl-paren (token-regexp "\\(")
+				   expr
+				   (token-regexp "\\)"))
+		      digit))
+    
+    (term (clpcl-chainl-1 factor multop))
+    (expr (clpcl-chainl-1 term addop))
+
     )
+   (clpcl-parse expr text)
+   )
   )
 
 ;; (ert-deftest calc1 ()
