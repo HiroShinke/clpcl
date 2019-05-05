@@ -53,6 +53,34 @@
 ;;(optima:defpattern failure (pos)
 ;;  `(failuren :pos ,pos))
 
+(defmacro clpcl-let (arglist &rest body)
+  (let* ((igs nil)       ;; ignore list
+	 (vs (mapcar
+	      (lambda (e)
+		(if (and (listp e)
+			 (car e))
+		    (car e)
+		    (progn
+		      (let ((s (gensym "clpcl-let")))
+			(setq igs (cons s igs))
+			s))
+		    )
+		)
+	      arglist))
+	 (ps (mapcar
+	      (lambda (e)
+		(if (listp e)
+		    (cadr e)
+		    e))
+	      arglist))
+	 )
+    `(clpcl-bind-seq
+      (clpcl-seq ,@ps)
+      (lambda ,vs
+	(declare (ignore ,@igs))
+		 ,@body))
+    )
+  )
 
 (defun clpcl-parse (parser text)
   (funcall parser text 0))
@@ -548,34 +576,6 @@
    (lambda (x)
      (apply action x))))
 
-(defmacro clpcl-let (arglist &rest body)
-  (let* ((igs nil)       ;; ignore list
-	 (vs (mapcar
-	      (lambda (e)
-		(if (and (listp e)
-			 (car e))
-		    (car e)
-		    (progn
-		      (let ((s (gensym "clpcl-let")))
-			(setq igs (cons s igs))
-			s))
-		    )
-		)
-	      arglist))
-	 (ps (mapcar
-	      (lambda (e)
-		(if (listp e)
-		    (cadr e)
-		    e))
-	      arglist))
-	 )
-    `(clpcl-bind-seq
-      (clpcl-seq ,@ps)
-      (lambda ,vs
-	(declare (ignore ,@igs))
-		 ,@body))
-    )
-  )
 
 
 (defun clpcl-m-bind (p func)
