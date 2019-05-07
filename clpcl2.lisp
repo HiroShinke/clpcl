@@ -17,7 +17,7 @@
 	   :clpcl-not-followed
 	   :clpcl-eof
 	   :clpcl-seq
-	   :clpcl-string
+	   :clpcl-string-literal
 	   :clpcl-or
 	   :clpcl-token
 	   :clpcl-try
@@ -153,7 +153,7 @@
   delim
   )
 
-(defun clpcl-string (&optional (q-char #\"))
+(defun clpcl-string-literal (&optional (q-char #\"))
   (<string> q-char))
 
 

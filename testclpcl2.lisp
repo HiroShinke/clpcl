@@ -647,11 +647,11 @@
     )
   )
 
-(test clpcl-string
-  "test for clpcl-string"
-  (let ((p (clpcl-string nil))
-	(dq (clpcl-string #\"))
-	(sq (clpcl-string #\')))
+(test clpcl-string-literal
+  "test for clpcl-string-literal"
+  (let ((p (clpcl-string-literal nil))
+	(dq (clpcl-string-literal #\"))
+	(sq (clpcl-string-literal #\')))
     (is
      (equalp
       (success 5 "'abc'")
@@ -713,7 +713,7 @@
 
 
 (test clpcl-many-till
-  "test for clpcl-string"
+  "test for clpcl-string-literal"
   (let* ((cs (clpcl-regexp "/\\*"))
 	 (ce (clpcl-regexp "\\*/"))
 	 (any (clpcl-regexp "."))
