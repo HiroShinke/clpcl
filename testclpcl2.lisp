@@ -69,6 +69,45 @@
       )
      )
     )
+
+
+(test seq-parser2
+  "test for parser seq"
+  (let* ((a (clpcl-string "a"))
+	 (b (clpcl-string "b"))
+	 (c (clpcl-string "c"))
+	 (p (clpcl-seq a b c)))
+    (is
+     (equalp
+      (success 3 '("a" "b" "c"))
+      (clpcl-parse p "abc")
+      )
+     )
+    (is
+     (equalp
+      (failure 0)
+      (clpcl-parse p "xbc")
+      )
+     )
+    (is
+     (equalp
+      (failure 1)
+      (clpcl-parse p "axc")
+      )
+     )
+    (is
+     (equalp
+      (failure 2)
+      (clpcl-parse p "abx")
+      )
+     )
+    (is
+     (equalp
+      (failure 2)
+      (clpcl-parse p "ab")
+      )
+     )
+    )
   )
 
 (test lookahead-parser
@@ -710,10 +749,11 @@
     )
   )
 
+)
 
 
 (test clpcl-many-till
-  "test for clpcl-string-literal"
+  "test for clpcl-many-till"
   (let* ((cs (clpcl-regexp "/\\*"))
 	 (ce (clpcl-regexp "\\*/"))
 	 (any (clpcl-regexp "."))

@@ -18,6 +18,7 @@
 	   :clpcl-eof
 	   :clpcl-seq
 	   :clpcl-string-literal
+	   :clpcl-string
 	   :clpcl-or
 	   :clpcl-token
 	   :clpcl-try
@@ -116,6 +117,19 @@
 	(if s
 	    (success e (subseq text s e))
 	    (failure pos))))))
+
+(defun clpcl-string (str0)
+  (let ((len (length str0)))
+    (lambda (text pos)
+    (let ((str1 (subseq text pos (+ pos len))))
+      (if (string= str0 str1)
+	  (success (+ pos len) str1)
+	  (failure pos)
+	  )
+      )
+    )
+    )
+  )
 
 (defun clpcl-string-literal (&optional (q-char #\"))
 

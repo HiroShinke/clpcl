@@ -18,6 +18,7 @@
 	   :clpcl-eof
 	   :clpcl-seq
 	   :clpcl-string-literal
+	   :clpcl-string
 	   :clpcl-or
 	   :clpcl-token
 	   :clpcl-try
@@ -148,21 +149,44 @@
 	(success e (subseq text s e))
 	(failure pos))))
 
-(defstruct ( <string> (:constructor <string>(delim) )
-		      (:include <parser>))
+(defstruct (<string>
+	     (:constructor <string>(str) )
+	     (:include <parser> )
+	     )
+  str
+  )
+
+(defun clpcl-string (str0)
+  (<string> str0)
+  )
+
+(defmethod parse ((p <string>) text pos)
+
+    (let* ((str0 (<string>-str p))
+	   (len (length str0))
+	   (str1 (subseq text pos (+ pos len))))
+      (if (string= str0 str1)
+	  (success (+ pos len) str1)
+	  (failure pos)
+	  )
+      )
+  )
+
+(defstruct ( <string-literal> (:constructor <string-literal>(delim) )
+			      (:include <parser>))
   delim
   )
 
 (defun clpcl-string-literal (&optional (q-char #\"))
-  (<string> q-char))
+  (<string-literal> q-char))
 
 
-(defmethod parse ((p <string>) text pos)
+(defmethod parse ((p <string-literal>) text pos)
 
   "This parser parses java-like string literals"
 
   (let* (
-	 (q-char (<string>-delim p))
+	 (q-char (<string-literal>-delim p))
 	 (qexp  (if (null q-char)
 		    "\"|\'"
 		    (concatenate
