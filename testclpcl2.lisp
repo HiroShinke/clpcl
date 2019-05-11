@@ -76,7 +76,8 @@
   (let* ((a (clpcl-string "a"))
 	 (b (clpcl-string "b"))
 	 (c (clpcl-string "c"))
-	 (p (clpcl-seq a b c)))
+	 (p (clpcl-seq a b c))
+	 (x (clpcl-string "abcdef")))
     (is
      (equalp
       (success 3 '("a" "b" "c"))
@@ -105,6 +106,12 @@
      (equalp
       (failure 2)
       (clpcl-parse p "ab")
+      )
+     )
+    (is
+     (equalp
+      (failure 0)
+      (clpcl-parse x "ab")
       )
      )
     )

@@ -164,7 +164,9 @@
 
     (let* ((str0 (<string>-str p))
 	   (len (length str0))
-	   (str1 (subseq text pos (+ pos len))))
+	   (lena (length text))
+	   (str1 (subseq text pos (max (+ pos len)
+				       lena))))
       (if (string= str0 str1)
 	  (success (+ pos len) str1)
 	  (failure pos)
