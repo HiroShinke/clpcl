@@ -736,13 +736,26 @@
       (otherwise
        r))))
 
-(defun clpcl-bind-seq (p action)
-  (clpcl-bind
-   p
-   (lambda (x)
-     (apply action x))))
+(defstruct ( <bind-seq> (:constructor <bind-seq>(parser func) )
+			(:include <parser>))
+  parser
+  func
+  )
 
 
+(defun clpcl-bind-seq (p func)
+  (<bind-seq> p func) )
+
+
+(defmethod parse ((p <bind-seq>) text pos)
+  (let ((r (parse (<bind-seq>-parser p) text pos)))
+    (match r
+      ((success :pos pos :value v)
+       (success
+	pos
+	(apply (<bind-seq>-func p) v)))
+      (otherwise
+       r))))
 
 (defstruct ( <mbind> (:constructor <mbind>(parser func))
 		     (:include <parser>) )

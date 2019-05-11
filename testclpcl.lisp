@@ -69,6 +69,7 @@
       )
      )
     )
+  )
 
 
 (test seq-parser2
@@ -755,9 +756,6 @@
      )
     )
   )
-
-)
-
 
 (test clpcl-many-till
   "test for clpcl-many-till"
